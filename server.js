@@ -3,8 +3,8 @@ const express = require("express");
 const app = express();
 
 const cors = require("cors");
-const connectDB = require("./db11").connectDB
-const userRoutes = require("./routes/users")
+const connectDB = require("./db11").connectDB;
+const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
 const cartRoutes = require("./routes/cart");
 const orderRoutes = require("./routes/order");
@@ -12,18 +12,33 @@ const Serie_Route = require("./routes/series");
 const Product_Route = require("./routes/Productpg");
 const productRoutes = require("./routes/product");
 const stripeRoute = require("./routes/stripe");
-const recommendationsRouter = require('./routes/api');
- 
+const recommendationsRouter = require("./routes/api");
+
 // database connection
-connectDB().then(() => {
+connectDB()
+  .then(() => {
     console.log("Connected to database successfully");
-  }).catch((error) => {
+  })
+  .catch((error) => {
     console.log(`Error connecting to database: ${error}`);
   });
 
 // middlewares
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (
+        origin === "http://localhost:3000" ||
+        origin === "http://your-other-origin.com"
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })
+);
 
 // routes
 app.use("/api/users", userRoutes);
@@ -34,8 +49,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/Series", Serie_Route);
 app.use("/api/Product", Product_Route);
 app.use("/api/checkout", stripeRoute);
-app.use('/api', recommendationsRouter);
-
+app.use("/api", recommendationsRouter);
 
 const port = process.env.PORT || 5000;
 app.listen(port, console.log(`Listening on port ${port}...`));
